@@ -35,48 +35,46 @@ def load_and_detect_faces(folder_path):
                         labels.append(label)
     return images, labels
 
+def receive_features(dataset_path):
+    train_folder_path = os.path.join(dataset_path, 'train')
+    if os.path.exists(train_folder_path):
+        X_train_faces, y_train = load_and_detect_faces(train_folder_path)
+        test_folder_path = os.path.join(dataset_path, 'test')
+        X_train_features = extract_hog_features(X_train_faces)
+        if os.path.exists(test_folder_path):
+            X_test_faces, y_test = load_and_detect_faces(test_folder_path)
+            X_test_features = extract_hog_features(X_test_faces)
+        else:
+            print(f"Warning: 'train' folder not found in {train_folder_path}")
+    else:
+        print(f"Warning: 'train' folder not found in {train_folder_path}")
+
+    return X_train_features, y_train, X_test_features, y_test
 
 def train_model(dataset_paths):
-    X_train_faces = []
-    y_train = []
-    X_test_faces = []
-    y_test = []
 
-    for dataset_path in dataset_paths:
-        train_folder_path = os.path.join(dataset_path, 'train')
+    X_train_features, y_train, X_test_features, y_test = receive_features(dataset_paths[0])
 
-        if os.path.exists(train_folder_path):
-            faces, labels = load_and_detect_faces(train_folder_path)
-            X_train_faces.extend(faces)
-            y_train.extend(labels)
-        else:
-            print(f"Warning: 'train' folder not found in {dataset_path}")
+    tree_classifier1 = DecisionTreeClassifier(max_depth=5, random_state=10)
+    tree_classifier1.fit(X_train_features, y_train)
 
-    X_train_features = extract_hog_features(X_train_faces)
-
-    for dataset_path in dataset_paths:
-        test_folder_path = os.path.join(dataset_path, 'test')
-
-        if os.path.exists(test_folder_path):
-            faces, labels = load_and_detect_faces(test_folder_path)
-            X_test_faces.extend(faces)
-            y_test.extend(labels)
-        else:
-            print(f"Warning: 'train' folder not found in {dataset_path}")
-
-    X_test_features = extract_hog_features(X_test_faces)
-
-    tree_classifier = DecisionTreeClassifier(max_depth=5, random_state=10)
-    tree_classifier.fit(X_train_features, y_train)
-
-    y_pred = tree_classifier.predict(X_test_features)
-    acc = accuracy_score(y_test, y_pred)
+    y_pred = tree_classifier1.predict(X_test_features)
+    acc1 = accuracy_score(y_test, y_pred)
     #print(f"Accuracy: {acc*100:.2f}%")
 
-    conf_matrix = confusion_matrix(y_test, y_pred)
+    conf_matrix1 = confusion_matrix(y_test, y_pred)
     #print(f"Confusion Matrix:\n{conf_matrix}")
 
-    return tree_classifier, acc, conf_matrix
+    X_train_features, y_train, X_test_features, y_test = receive_features(dataset_paths[1])
+
+    tree_classifier2 = DecisionTreeClassifier(max_depth=5, random_state=10)
+    tree_classifier2.fit(X_train_features, y_train)
+
+    y_pred = tree_classifier2.predict(X_test_features)
+    acc2 = accuracy_score(y_test, y_pred)
+    conf_matrix2 = confusion_matrix(y_test, y_pred)
+
+    return tree_classifier1, acc1, conf_matrix1, tree_classifier2, acc2, conf_matrix2
 
 def extract_hog_features_single(img):
     img = cv2.resize(img, (256,256))
@@ -110,7 +108,7 @@ def predict_emotion_hog(image_path, classifier):
 
     img_with_box = img_rgb.copy()
     cv2.rectangle(img_with_box, (x, y), (x+w, y+h), (0, 255, 0), 2)
-    cv2.putText(img_with_box, prediction, (x, y-10), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 255, 0), 2)
+    cv2.putText(img_with_box, prediction, (x, y-10), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 1)
 
     return img_rgb, img_with_box, hog_image, prediction
 

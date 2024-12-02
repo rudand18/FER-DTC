@@ -60,6 +60,9 @@ def show_ui():
     dataset1_button = tk.Button(window, text="Select folder", command=select_dataset_folder1)
     dataset1_button.pack(pady=5)
 
+    accuracy_label1 = tk.Label(window, text="Accuracy: Not trained yet", fg="blue")
+    accuracy_label1.pack(pady=5)
+
     dataset2_label = tk.Label(window, text="Select the second folder for the dataset")
     dataset2_label.pack(pady=5)
 
@@ -71,6 +74,9 @@ def show_ui():
     dataset2_button = tk.Button(window, text="Select folder", command=select_dataset_folder2)
     dataset2_button.pack(pady=5)
 
+    accuracy_label2 = tk.Label(window, text="Accuracy: Not trained yet", fg="blue")
+    accuracy_label2.pack(pady=5)
+
     def submit_paths():
         print(f"First Dataset Path: {dataset1_path_var.get()}")
         print(f"Second Dataset Path: {dataset2_path_var.get()}")
@@ -79,8 +85,8 @@ def show_ui():
     button = tk.Button(window, text="Check paths", command=submit_paths)
     button.pack(pady=20)
 
-    accuracy_label = tk.Label(window, text="Accuracy: Not trained yet", fg="blue")
-    accuracy_label.pack(pady=5)
+    accuracy_label1 = tk.Label(window, text="Accuracy: Not trained yet", fg="blue")
+    accuracy_label1.pack(pady=5)
 
     #confusion_matrix_label = tk.Label(window, text="Confusion Matrix: Not available", fg="blue", justify="left")
     #confusion_matrix_label.pack(pady=5)
@@ -91,20 +97,30 @@ def show_ui():
         #tree_classifier1, acc1, conf_matrix1 = model.train_model(dataset1_path)
         #tree_classifier2, acc2, conf_matrix2 = model.train_model(dataset2_path)
 
-        tree_classifier, acc, conf_matrix = model.train_model([dataset1_path, dataset2_path])
+        tree_classifier1, acc1, conf_matrix1, tree_classifier2, acc2, conf_matrix2 = model.train_model([dataset1_path, dataset2_path])
         #Change signature of model.train_model
         print("Model has been trained")
-        print(f"Accuracy: {acc * 100:.2f}%")
-        print(f"Confusion Matrix:\n{conf_matrix}")
+        print(f"Accuracy 1: {acc1 * 100:.2f}%")
+        print(f"Confusion Matrix 1:\n{conf_matrix1}")
 
-        global classifier
-        classifier = tree_classifier
-        global accuracy
-        accuracy = acc
-        global confusion_matrix
-        confusion_matrix = conf_matrix
+        print(f"Accuracy 2: {acc2 * 100:.2f}%")
+        print(f"Confusion Matrix 2:\n{conf_matrix2}")
 
-        accuracy_label.config(text=f"Accuracy: {accuracy * 100:.2f}%")
+        global classifier1
+        classifier1 = tree_classifier1
+        global accuracy1
+        accuracy1 = acc1
+        global confusion_matrix1
+        confusion_matrix1 = conf_matrix1
+        global classifier2
+        classifier2 = tree_classifier2
+        global accuracy2
+        accuracy2 = acc2
+        global confusion_matrix2
+        confusion_matrix2 = conf_matrix2
+
+        accuracy_label1.config(text=f"Accuracy: {accuracy1 * 100:.2f}%")
+        accuracy_label2.config(text=f"Accuracy: {accuracy2 * 100:.2f}%")
         #confusion_matrix_label.config(text=f"Confusion Matrix:\n{confusion_matrix}")
 
     train_button = tk.Button(window, text="Train model", command=train_model)
@@ -113,9 +129,11 @@ def show_ui():
     def test_model_single():
         image_path = select_image()
         print(f"Image Path: {image_path}")
-        img_rgb, img_with_box, hog_image, prediction = model.test_with_single_image(image_path, classifier)
-        prediction_label.config(text=f"Predicted emotion: {prediction}")
-        output_test_result(img_rgb, img_with_box, hog_image, prediction)
+        img_rgb1, img_with_box1, hog_image1, prediction1 = model.test_with_single_image(image_path, classifier1)
+        img_rgb2, img_with_box2, hog_image2, prediction2 = model.test_with_single_image(image_path, classifier2)
+        # prediction_label.config(text=f"Predicted emotion: {prediction1, prediction2}")
+        output_test_result(img_rgb1, img_with_box1, hog_image1, prediction1)
+        output_test_result(img_rgb2, img_with_box2, hog_image2, prediction2)
 
 
     test_button = tk.Button(window, text="Select path to test model with an image", command=test_model_single)
