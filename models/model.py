@@ -11,8 +11,8 @@ from skimage.feature import hog
 def extract_hog_features(images):
     hog_features = []
     for img in images:
-        img = cv2.resize(img, (128,128))
-        hog_feat = hog(img, orientations=8, pixels_per_cell=(16,16),
+        img = cv2.resize(img, (256,256))
+        hog_feat = hog(img, orientations=8, pixels_per_cell=(8,8),
         cells_per_block=(4,4), block_norm='L2-Hys')
         hog_features.append(hog_feat)
     return np.array(hog_features)
@@ -79,9 +79,9 @@ def train_model(dataset_paths):
     return tree_classifier, acc, conf_matrix
 
 def extract_hog_features_single(img):
-    img = cv2.resize(img, (128,128))
+    img = cv2.resize(img, (256,256))
 
-    hog_features, hog_image = hog(img, orientations=8, pixels_per_cell=(16,16),cells_per_block=(4,4), block_norm='L2-Hys', visualize=True)
+    hog_features, hog_image = hog(img, orientations=8, pixels_per_cell=(8,8),cells_per_block=(4,4), block_norm='L2-Hys', visualize=True)
     return hog_features, hog_image
 
 def predict_emotion_hog(image_path, classifier):
@@ -92,7 +92,7 @@ def predict_emotion_hog(image_path, classifier):
     if img is None:
         raise ValueError(f"Image {image_path} cannot be opened")
 
-    faces = face_cascade.detectMultiScale(img, scaleFactor=1.1, minNeighbors=8, minSize=(30,30))
+    faces = face_cascade.detectMultiScale(img, scaleFactor=1.05, minNeighbors=8, minSize=(30,30))
 
     if len(faces) == 0:
         raise ValueError(f"No faces detected")
