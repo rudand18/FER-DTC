@@ -28,7 +28,7 @@ def load_and_detect_faces(folder_path):
                 img_path = os.path.join(label_path, img_file)
                 img = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
                 if img is not None:
-                    faces = face_cascade.detectMultiScale(img, scaleFactor=1.1, minNeighbors=8, minSize=(30,30))
+                    faces = face_cascade.detectMultiScale(img, scaleFactor=1.2, minNeighbors=8, minSize=(30,30))
                     for(x, y, w, h) in faces:
                         face_region = img[y:y+h, x:x+w]
                         images.append(face_region)
@@ -90,7 +90,7 @@ def predict_emotion_hog(image_path, classifier):
     if img is None:
         raise ValueError(f"Image {image_path} cannot be opened")
 
-    faces = face_cascade.detectMultiScale(img, scaleFactor=1.05, minNeighbors=8, minSize=(30,30))
+    faces = face_cascade.detectMultiScale(img, scaleFactor=1.2, minNeighbors=8, minSize=(30,30))
 
     if len(faces) == 0:
         raise ValueError(f"No faces detected")

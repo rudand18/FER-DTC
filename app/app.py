@@ -85,9 +85,6 @@ def show_ui():
     button = tk.Button(window, text="Check paths", command=submit_paths)
     button.pack(pady=20)
 
-    accuracy_label1 = tk.Label(window, text="Accuracy: Not trained yet", fg="blue")
-    accuracy_label1.pack(pady=5)
-
     #confusion_matrix_label = tk.Label(window, text="Confusion Matrix: Not available", fg="blue", justify="left")
     #confusion_matrix_label.pack(pady=5)
 
@@ -138,9 +135,6 @@ def show_ui():
 
     test_button = tk.Button(window, text="Select path to test model with an image", command=test_model_single)
     test_button.pack(pady=20)
-
-    prediction_label = tk.Label(window, text="Predicted Emotion: No prediction done", fg="blue")
-    prediction_label.pack(pady=5)
 
     close_button = tk.Button(window, text="Close", command=window.destroy)
     close_button.pack(pady=30)
