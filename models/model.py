@@ -2,10 +2,8 @@ import cv2
 import numpy as np
 import os
 
-from pyexpat import features
 from sklearn.tree import DecisionTreeClassifier
-from sklearn.metrics import accuracy_score, confusion_matrix
-import matplotlib.pyplot as plt
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
 from skimage.feature import hog
 
 def extract_hog_features(images):
@@ -28,7 +26,7 @@ def load_and_detect_faces(folder_path):
                 img_path = os.path.join(label_path, img_file)
                 img = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
                 if img is not None:
-                    faces = face_cascade.detectMultiScale(img, scaleFactor=1.2, minNeighbors=8, minSize=(30,30))
+                    faces = face_cascade.detectMultiScale(img, scaleFactor=1.2, minNeighbors=5, minSize=(30,30))
                     for(x, y, w, h) in faces:
                         face_region = img[y:y+h, x:x+w]
                         images.append(face_region)
@@ -55,26 +53,28 @@ def train_model(dataset_paths):
 
     X_train_features, y_train, X_test_features, y_test = receive_features(dataset_paths[0])
 
-    tree_classifier1 = DecisionTreeClassifier(max_depth=5, random_state=10)
+    tree_classifier1 = DecisionTreeClassifier(max_depth=5, random_state=17) #5 47,1
     tree_classifier1.fit(X_train_features, y_train)
 
     y_pred = tree_classifier1.predict(X_test_features)
     acc1 = accuracy_score(y_test, y_pred)
-    #print(f"Accuracy: {acc*100:.2f}%")
 
     conf_matrix1 = confusion_matrix(y_test, y_pred)
-    #print(f"Confusion Matrix:\n{conf_matrix}")
+
+    classification_report_1 = classification_report(y_test,y_pred)
 
     X_train_features, y_train, X_test_features, y_test = receive_features(dataset_paths[1])
 
-    tree_classifier2 = DecisionTreeClassifier(max_depth=5, random_state=10)
+    tree_classifier2 = DecisionTreeClassifier(max_depth=7, random_state=11)
     tree_classifier2.fit(X_train_features, y_train)
 
     y_pred = tree_classifier2.predict(X_test_features)
     acc2 = accuracy_score(y_test, y_pred)
     conf_matrix2 = confusion_matrix(y_test, y_pred)
 
-    return tree_classifier1, acc1, conf_matrix1, tree_classifier2, acc2, conf_matrix2
+    classification_report_2 = classification_report(y_test, y_pred)
+
+    return tree_classifier1, acc1, conf_matrix1, tree_classifier2, acc2, conf_matrix2, classification_report_1, classification_report_2
 
 def extract_hog_features_single(img):
     img = cv2.resize(img, (256,256))
@@ -90,7 +90,7 @@ def predict_emotion_hog(image_path, classifier):
     if img is None:
         raise ValueError(f"Image {image_path} cannot be opened")
 
-    faces = face_cascade.detectMultiScale(img, scaleFactor=1.2, minNeighbors=8, minSize=(30,30))
+    faces = face_cascade.detectMultiScale(img, scaleFactor=1.2, minNeighbors=5, minSize=(30,30))
 
     if len(faces) == 0:
         raise ValueError(f"No faces detected")

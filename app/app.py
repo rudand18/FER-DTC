@@ -43,9 +43,6 @@ def show_ui():
     window.title("Facial Emotion Recognition")
     window.geometry('500x600')
 
-    #label = tk.Label(window, text="Upload your image here")
-    #label.pack(pady=20)
-
     dataset1_path_var = tk.StringVar(value="No folder selected")
     dataset2_path_var = tk.StringVar(value="No folder selected")
 
@@ -85,17 +82,22 @@ def show_ui():
     button = tk.Button(window, text="Check paths", command=submit_paths)
     button.pack(pady=20)
 
-    #confusion_matrix_label = tk.Label(window, text="Confusion Matrix: Not available", fg="blue", justify="left")
-    #confusion_matrix_label.pack(pady=5)
+    def plot_classification_reports(report_1, report_2):
+        #print(report_1, report_2)
+        print("")
 
     def train_model():
         dataset1_path = dataset1_path_var.get()
         dataset2_path = dataset2_path_var.get()
-        #tree_classifier1, acc1, conf_matrix1 = model.train_model(dataset1_path)
-        #tree_classifier2, acc2, conf_matrix2 = model.train_model(dataset2_path)
 
-        tree_classifier1, acc1, conf_matrix1, tree_classifier2, acc2, conf_matrix2 = model.train_model([dataset1_path, dataset2_path])
-        #Change signature of model.train_model
+        #static folders
+        #dataset1_path = "C:\\Users\\user\\OneDrive - UCLan\ArtificialIntelligence\datasets\CK_dataset"
+        #dataset2_path = "C:\\Users\\user\\OneDrive - UCLan\ArtificialIntelligence\datasets\JAFFE-[70,30]"
+
+        tree_classifier1, acc1, conf_matrix1, tree_classifier2, acc2, conf_matrix2, cl_re_1, cl_re_2 = model.train_model([dataset1_path, dataset2_path])
+
+        plot_classification_reports(cl_re_1, cl_re_2)
+
         print("Model has been trained")
         print(f"Accuracy 1: {acc1 * 100:.2f}%")
         print(f"Confusion Matrix 1:\n{conf_matrix1}")
@@ -128,7 +130,6 @@ def show_ui():
         print(f"Image Path: {image_path}")
         img_rgb1, img_with_box1, hog_image1, prediction1 = model.test_with_single_image(image_path, classifier1)
         img_rgb2, img_with_box2, hog_image2, prediction2 = model.test_with_single_image(image_path, classifier2)
-        # prediction_label.config(text=f"Predicted emotion: {prediction1, prediction2}")
         output_test_result(img_rgb1, img_with_box1, hog_image1, prediction1)
         output_test_result(img_rgb2, img_with_box2, hog_image2, prediction2)
 
